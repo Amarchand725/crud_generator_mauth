@@ -1,11 +1,12 @@
+<?php 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{modelName};
+use App\Models\Product;
 use DB;
 use Session;
 
-class {ControllerName} extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,16 +16,16 @@ class {ControllerName} extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $query = {modelName}::orderby('id', 'desc')->where('id', '>', 0);
+            $query = Product::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                {searchColumns}
+                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("price", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
-            return (string) view('{viewFolderName}._search', compact('models'));
+            return (string) view('products._search', compact('models'));
         }
-        $page_title = 'All {modelName}s';
-        $models = {modelName}::orderby('id', 'desc')->paginate(10);
-        return view('{viewFolderName}.index', compact('models', 'page_title'));
+        $page_title = 'All Products';
+        $models = Product::orderby('id', 'desc')->paginate(10);
+        return view('products.index', compact('models', 'page_title'));
     }
 
     /**
@@ -34,7 +35,7 @@ class {ControllerName} extends Controller
      */
     public function create()
     {
-        return view('{viewFolderName}.create');
+        return view('products.create');
     }
 
     /**
@@ -44,17 +45,17 @@ class {ControllerName} extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, {modelName}::getValidationRules());
+        $this->validate($request, Product::getValidationRules());
 
         $input = $request->all();
 
         DB::beginTransaction();
 
         try{
-	        {modelName}::create($input);
+	        Product::create($input);
 
             DB::commit();
-            return redirect()->route('{menuName}.index')->with('message', '{modelName} Added Successfully !');
+            return redirect()->route('product.index')->with('message', 'Product Added Successfully !');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
@@ -70,9 +71,9 @@ class {ControllerName} extends Controller
     public function show($id)
     {
 
-        $model = {modelName}::findOrFail($id);
+        $model = Product::findOrFail($id);
 
-      	return view('{viewFolderName}.show', array('model' => $model));
+      	return view('products.show', array('model' => $model));
     }
 
     /**
@@ -83,8 +84,8 @@ class {ControllerName} extends Controller
      */
     public function edit($id)
     {
-        $model = {modelName}::findOrFail($id);
-        return view('{viewFolderName}.edit')->withModel($model);
+        $model = Product::findOrFail($id);
+        return view('products.edit')->withModel($model);
     }
 
     /**
@@ -95,13 +96,13 @@ class {ControllerName} extends Controller
      */
     public function update($id, Request $request)
     {
-        $model = {modelName}::findOrFail($id);
+        $model = Product::findOrFail($id);
 
-	    $this->validate($request, {modelName}::getValidationRules());
+	    $this->validate($request, Product::getValidationRules());
 
         try{
 	        $model->fill( $request->all() )->save();
-            return redirect()->route('{menuName}.index')->with('message', '{modelName} update Successfully !');
+            return redirect()->route('product.index')->with('message', 'Product update Successfully !');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
         }
@@ -115,7 +116,7 @@ class {ControllerName} extends Controller
      */
     public function destroy($id)
     {
-        $model = {modelName}::findOrFail($id);
+        $model = Product::findOrFail($id);
 	    $model->delete();
 
         if($model){

@@ -53,3 +53,14 @@ Route::group(['prefix' => 'admin'], function() {
 });
 
 Route::resource('computer', 'ComputerController');
+Route::resource('product', 'ProductController');
+Route::resource('car', 'CarController');
+Route::resource('mobile', 'MobileController');
+Route::resource('test', 'TestController');
+Route::resource('song', 'SongController');
+Route::resource('song', 'SongController');
+Route::resource('newtechnology', 'NewTechnologyController');
+Route::resource('amar', 'AmarController');
+Route::resource('computer', 'ComputerController');
+Route::resource('computer', 'ComputerController');
+Route::resource('product', 'ProductController');

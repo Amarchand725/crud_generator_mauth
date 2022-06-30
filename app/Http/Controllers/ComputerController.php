@@ -18,13 +18,13 @@ class ComputerController extends Controller
         if($request->ajax()){
             $query = Computer::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");
+                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("price", "like", "%". $request["search"] ."%");$query->orWhere("type", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
             return (string) view('computers._search', compact('models'));
         }
         $page_title = 'All Computers';
-        $models = Computer::orderby('id', 'desc')->where('status', 1)->paginate(10);
+        $models = Computer::orderby('id', 'desc')->paginate(10);
         return view('computers.index', compact('models', 'page_title'));
     }
 
@@ -102,7 +102,7 @@ class ComputerController extends Controller
 
         try{
 	        $model->fill( $request->all() )->save();
-            return redirect()->route('Computer.index')->with('message', 'Computer Added Successfully !');
+            return redirect()->route('computer.index')->with('message', 'Computer update Successfully !');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
         }

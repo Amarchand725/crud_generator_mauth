@@ -1,5 +1,5 @@
 @extends('layouts.admin.app')
-@section('title', $page_title)
+@section('title', '{page_title}')
 @push('css')
     <style>
         select {
@@ -10,7 +10,7 @@
 @section('content')
 <section class="content-header">
 	<div class="content-header-left">
-		<h1>{{ $page_title }}</h1>
+		<h1>{page_title}</h1>
 	</div>
 	<div class="content-header-right">
 		<a href="{view_all_route}" class="btn btn-primary btn-sm">View All</a>

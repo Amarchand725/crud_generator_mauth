@@ -59,9 +59,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="" class="col-sm-2 control-label">Menu <span style="color:red">*</span></label>
+                                <label for="" class="col-sm-2 control-label">Menu</label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="menu" value="{{ $menu->menu }}" placeholder="Enter Menu e.g user">
+                                    <input type="text" class="form-control" disabled name="menu" value="{{ $menu->menu }}" placeholder="Enter Menu e.g user">
                                     <span style="color: red">{{ $errors->first('menu') }}</span>
                                 </div>
                             </div>

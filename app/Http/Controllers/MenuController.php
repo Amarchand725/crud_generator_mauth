@@ -122,7 +122,7 @@ class MenuController extends Controller
     {
         $page_title = 'Edit Menu';
         $roles = Role::where('status', 1)->get();
-        $parent_menus = Menu::where('parent_id', null)->get();
+        $parent_menus = Menu::where('parent_id', null)->where('id', '!=', $menu->id)->get();
         return view('admin.menus.edit', compact('menu', 'parent_menus', 'roles', 'page_title'));
     }
 
@@ -137,17 +137,14 @@ class MenuController extends Controller
     {
         $this->validate($request, [
             'label' => 'required',
-            'menu' => 'required',
         ]);
 
         try{
             $url_menu = str_replace(' ', '-', $request->menu);
-
             $menu->menu_of = $request->menu_of;
             $menu->parent_id = $request->parent_id;
             $menu->icon = $request->icon;
             $menu->label = $request->label;
-            $menu->menu = $request->menu;
             $menu->url = $request->menu_of.'/'.Str::lower($url_menu);
             $menu->save();
 
@@ -333,50 +330,101 @@ class MenuController extends Controller
         $searchFile = file_get_contents($templateFolder."/templateViews/_search.blade.php");
 
     	$form = '';
+    	$edit_form = '';
     	$index_page = "";
     	$show  = "";
         $t_columns = "";
     	$columns = DB::select('show columns from ' . $table_name);
         $index_title = ucwords($data->menu);
-        $index_page_title = Str::plural(Str::upper($index_title));
-        $create_page_title = 'Add New '. Str::upper($index_title);
-
+        $index_page_title = 'All '. Str::plural(Str::upper($index_title));
+        $create_page_title = 'ADD NEW '. Str::upper($index_title);
         foreach ($columns as $value) {
+            
             if ($value->Field != 'id' && $value->Field != 'deleted_at' && $value->Field != 'created_at' && $value->Field != 'updated_at') {
                 $type = explode('(', $value->Type);
 
                 $t_columns.='<th>'.Str::upper($value->Field).'</th>';
 
                 $form .= '<div class="form-group">' ."\n";
+                $edit_form .= '<div class="form-group">' ."\n";
 
-                $form .= '<label for="" class="col-sm-2 control-label">'.ucfirst($value->Field).' <span style="color:red">*</span></label>' ."\n".
-                        '<div class="col-sm-8">';
-                            if($type[0]=='text'){
-                                $form .= '<textarea class="form-control" name="'.$value->Field.'"></textarea>'."\n";
-                            }elseif($type[0]=='tinyint'){
-                                $form .= '<select class="form-control" name="status">'.
-                                            '<option value="1" {{ old("status")==1?"selected":"" }}>Active</option>'.
-                                            '<option value="0" {{ old("status")==0?"selected":"" }}>In Active</option>'.
-                                        '</select>';
-                            }elseif($type[0]=='varchar'){
-                                $form .= '<input type="text" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
-                            }elseif($type[0]=='int' || $type[0]=='bigint'){
-                                $form .= '<input type="number" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
-                            }else{
-                                $form .= '<input type="'.$type[0].'" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
-                            }
+                $form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
+                if($value->Null=='NO'){
+                    $form .= ' <span style="color:red">*</span>';
+                }
 
-                            $form .= '<span style="color: red">{{ $errors->first("'.$value->Field.'") }}</span>'.
-                        '</div>';
-                $form .= '</div>' ."\n";
+                $form .= '</label>' ."\n";
 
-                $index_page .= '<td>{{ $model->'.$value->Field.' }}</td>';
+                $form .= '<div class="col-sm-8">';
+                        if($type[0]=='text'){
+                            $form .= '<textarea class="form-control" id="'.$value->Field.'" name="'.$value->Field.'" placeholder="Enter '.$value->Field.'">{{ old("'.$value->Field.'") }}</textarea>'."\n";
+                        }elseif($type[0]=='tinyint'){
+                            $form .= '<select class="form-control" name="status">'.
+                                        '<option value="1" {{ old("status")==1?"selected":"" }}>Active</option>'.
+                                        '<option value="0" {{ old("status")==0?"selected":"" }}>In Active</option>'.
+                                    '</select>';
+                        }elseif($type[0]=='varchar'){
+                            $form .= '<input type="text" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }elseif($type[0]=='int' || $type[0]=='bigint' || $type[0]=='decimal' || $type[0]=='float' || $type[0]=='double'){
+                            $form .= '<input type="number" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }else{
+                            $form .= '<input type="'.$type[0].'" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }
 
+                        $form .= '<span style="color: red">{{ $errors->first("'.$value->Field.'") }}</span>'.
+                    '</div>'.
+                '</div>';
+
+                $edit_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
+                if($value->Null=='NO'){
+                    $edit_form .= ' <span style="color:red">*</span>';
+                }
+
+                $edit_form .= '</label>' ."\n";
+                    
+                $edit_form .='<div class="col-sm-8">';
+                        if($type[0]=='text'){
+                            $edit_form .= '<textarea class="form-control" id="'.$value->Field.'" name="'.$value->Field.'">{{ $model->'.$value->Field.' }}</textarea>'."\n";
+                        }elseif($type[0]=='tinyint'){
+                            $edit_form .= '<select class="form-control" name="status">'.
+                                        '<option value="1" {{ $model->'.$value->Field.'==1?"selected":"" }}>Active</option>'.
+                                        '<option value="0" {{ $model->'.$value->Field.'==0?"selected":"" }}>In Active</option>'.
+                                    '</select>';
+                        }elseif($type[0]=='varchar'){
+                            $edit_form .= '<input type="text" class="form-control" name="'.$value->Field.'" value="{{ $model->'.$value->Field.' }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }elseif($type[0]=='int' || $type[0]=='bigint' || $type[0]=='decimal' || $type[0]=='float' || $type[0]=='double'){
+                            $edit_form .= '<input type="number" class="form-control" name="'.$value->Field.'" value="{{ $model->'.$value->Field.' }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }else{
+                            $edit_form .= '<input type="'.$type[0].'" class="form-control" name="'.$value->Field.'" value="{{ $model->'.$value->Field.' }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }
+
+                        $edit_form .= '<span style="color: red">{{ $errors->first("'.$value->Field.'") }}</span>'.
+                    '</div>'.
+                '</div>';
+                
+                if($value->Field=='status'){
+                    $index_page .= '<td>'.
+                                        '@if($model->status)'.
+                                            '<span class="label label-success">Active</span>'.
+                                        '@else'.
+                                            '<span class="label label-danger">In-Active</span>'.
+                                        '@endif'.
+                                    '</td>';
+                }elseif($type[0]=='date'){
+                    $index_page .= '<td>{{ date("d, M-Y", strtotime($model->'.$value->Field.')) }}</td>';
+                }else{
+                    $index_page .= '<td>{{ $model->'.$value->Field.' }}</td>';
+                }
+            
                 $show .= '<p> {{$model->'.$value->Field.'}} </p>';
             }
 		}
 
-		$index_page .="<hr>";
+        $index_page .= '<td width="250px">'.
+                    '<a href="{{ route("'.$route_menu.'.show", $model->id) }}" data-toggle="tooltip" data-placement="top" title="Show '.Str::ucfirst($modelName).'" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a>'.
+                    '<a href="{{ route("'.$route_menu.'.edit", $model->id) }}" data-toggle="tooltip" data-placement="top" title="Edit '.Str::ucfirst($modelName).'" class="btn btn-primary btn-xs" style="margin-left: 3px;"><i class="fa fa-edit"></i> Edit</a>'.
+                    '<button data-toggle="tooltip" data-placement="top" title="Delete '.Str::ucfirst($modelName).'" class="btn btn-danger btn-xs delete" data-slug="{{ $model->id }}" data-del-url="{{ route("'.$route_menu.'.destroy", $model->id) }}" style="margin-left: 3px;"><i class="fa fa-trash"></i> Delete</button>'.
+                '</td>';
 
 		$createForm = $form;
         $createForm .= '<label for="" class="col-sm-2 control-label"></label>'."\n".
@@ -389,14 +437,7 @@ class MenuController extends Controller
 		$createForm = str_replace('{view_all_route}', '{{ route("'.$route_menu.'.index") }}', $createForm);
 		$createForm = str_replace('{page_title}', 'ADD NEW '.Str::upper($modelName), $createForm);
 
-		$updateForm = $form;
-        $updateForm .= '<label for="" class="col-sm-2 control-label"></label>'."\n".
-                        '<div class="col-sm-6">'.
-                            '<select class="form-control" id="status" name="status">'.
-                                '<option value="1" {{ $model->status==1?"selected":"" }}>Active</option>'.
-                                '<option value="0" {{ $model->status==0?"selected":"" }}>InActive</option>'.
-                            '</select>'.
-                        '</div>';
+		$updateForm = $edit_form;
         $updateForm .= '<label for="" class="col-sm-2 control-label"></label>'."\n".
                         '<div class="col-sm-6">'.
                             '<button type="submit" class="btn btn-success pull-left">Save</button>'.
@@ -404,7 +445,7 @@ class MenuController extends Controller
 		$updateForm = str_replace('{createForm}', $updateForm, $editFile);
         $updateForm = str_replace('{store_route}', '{{ route("'.$route_menu.'.update", $model->id) }}', $updateForm);
 		$updateForm = str_replace('{view_all_route}', '{{ route("'.$route_menu.'.index") }}', $updateForm);
-        $updateForm = str_replace('{page_title}', 'EDIT '.Str::upper($data->menu), $updateForm);
+        $updateForm = str_replace('{page_title}', 'EDIT '.Str::upper($modelName), $updateForm);
 
 		$searchForm = str_replace('{index}', $index_page, $searchFile);
 

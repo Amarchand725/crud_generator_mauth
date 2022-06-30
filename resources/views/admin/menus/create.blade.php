@@ -87,16 +87,21 @@
                                             <td>
                                                 <input type="text" class="form-control" name="column_names[]" value="{{ old('menu') }}" placeholder="Enter Menu e.g user">
                                             </td>
-                                            <td>
+                                            <td style="width:250px">
                                                 <select name="types[]" id="" class="form-control js-example-basic-single">
                                                     <option value="" selected>Select type</option>
                                                     <option value="integer">INT</option>
                                                     <option value="string">VARCHAR</option>
+                                                    {{-- <option value="blob">BLOB (image/file/docs)</option> --}}
                                                     <option value="boolean">BOOLEAN</option>
                                                     <option value="date">DATE</option>
+                                                    <option value="time">TIME</option>
+                                                    <option value="datetime">DATETIME</option>
                                                     <option value="text">TEXT</option>
                                                     <option value="bigInteger">BIGINT</option>
+                                                    <option value="decimal">DECIMAL</option>
                                                     <option value="float">FLOAT</option>
+                                                    <option value="double">DOUBLE</option>
                                                 </select>
                                             </td>
                                             <td>
