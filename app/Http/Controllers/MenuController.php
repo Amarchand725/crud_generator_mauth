@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use DB;
 use Artisan;
+use Schema;
 
 class MenuController extends Controller
 {
@@ -60,17 +61,15 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request;
         require base_path()."/crud-template/config.php";
 
-        // return $this->createModel($request);
-        // $this->addEntryInRoutes($request);
-        // $this->createMigration($request);
-        // return $this->createViews($request);
-
         $this->validate($request, [
+            'menu_of' => 'required',
+            'icon' => 'required',
             'label' => 'required',
             'menu' => 'required',
+            'column_names' => 'required',
+            'column_names.*' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -162,14 +161,55 @@ class MenuController extends Controller
      * @param  \App\Models\Menu  $menu
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Menu $menu)
+    public function destroy($id)
     {
-        $model = $menu->delete();
+        $model = Menu::where('id', $id)->first();
+        if($model){
+            //delete views with all files
+            // $modelName = str_replace(' ', '', ucwords($model->menu)) ;
+            // $viewFolderName = Str::plural(str::lower($modelName));
+            // $viewFolderPath = 'resources/views/'.$viewFolderName;
+            // if (\File::exists($viewFolderPath)){
+            //     \File::deleteDirectory($viewFolderPath);
+            //     return 'deleted';
+            // }else{
+            //     return 'not found';
+            // }
+
+            //delete model
+            // $modelName = str_replace(' ', '', ucwords($model->menu));
+            // $model_name = $modelName  .".php";
+            // $modelPath = base_path('app/Models/').$model_name;
+            // if(file_exists($modelPath)){
+            //     unlink($modelPath);
+            //     return 'deleted';
+            // }else{
+            //     return 'not found';
+            // }
+
+            //delete controller
+            // $modelName = str_replace(' ', '', ucwords($model->menu)) ;
+            // $ControllerName = $modelName  ."Controller.php";
+            // $controllerPath = base_path('app/Http/Controllers/').$ControllerName;
+            // if(file_exists($controllerPath)){
+            //     unlink($controllerPath);
+            //     return 'deleted';
+            // }else{
+            //     return 'not found';
+            // }
+
+            //delete table from database
+            // $table_name = Str::plural(str_replace(' ', '_', strtolower($model->menu)));
+            // Schema::drop($table_name); //Delete table from database
+            // return 'success';
+        }
+
+        /* $model = $menu->delete();
         if($model){
             return 1;
         }else{
             return 0;
-        }
+        } */
     }
 
     private function addEntryInRoutes($request){

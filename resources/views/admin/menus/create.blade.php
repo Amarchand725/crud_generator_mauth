@@ -26,7 +26,7 @@
 						<div class="form-group">
 							<label for="" class="col-sm-2 control-label">Menu of <span style="color:red">*</span></label>
 							<div class="col-sm-8">
-								<select name="menu_of" id="" class="form-control js-example-basic-single">
+								<select name="menu_of" id="" class="form-control js-example-basic-single" required>
                                     <option value="admin" selected>Admin</option>
                                     @foreach ($roles as $role)
                                         <option value="{{ Str::lower($role->name) }}">{{ $role->name }}</option>
@@ -51,22 +51,22 @@
                         <div class="form-group">
 							<label for="" class="col-sm-2 control-label">Icon <span style="color:red">*</span></label>
 							<div class="col-sm-8">
-								<input type="text" class="form-control" name="icon" value="{{ old('icon') }}" placeholder="Copy font awesome tag from library and paste here e.g <i class='fa fa-user' aria-hidden='true'></i>">
-								<span style="color: red">{{ $errors->first('icon') }}</span>
-                                <a href="https://fontawesome.com/v4/icons/" target="_blank" class="btn btn-success">Choose Icon</a>
+								<input type="text" class="form-control" name="icon" value="{{ old('icon') }}" placeholder="Copy font awesome tag from library and paste here e.g <i class='fa fa-user' aria-hidden='true'></i>" required>
+                                <a href="https://fontawesome.com/v4/icons/" style="margin-top: 5px" target="_blank" class="btn btn-success">Choose Icon</a><br />
+                                <span style="color: red">{{ $errors->first('icon') }}</span>
 							</div>
 						</div>
                         <div class="form-group">
 							<label for="" class="col-sm-2 control-label">Label <span style="color:red">*</span></label>
 							<div class="col-sm-8">
-								<input type="text" class="form-control" name="label" value="{{ old('label') }}" placeholder="Enter label e.g All Users">
+								<input type="text" class="form-control" name="label" value="{{ old('label') }}" placeholder="Enter label e.g All Users" required>
 								<span style="color: red">{{ $errors->first('label') }}</span>
 							</div>
 						</div>
                         <div class="form-group">
 							<label for="" class="col-sm-2 control-label">Menu <span style="color:red">*</span></label>
 							<div class="col-sm-8">
-								<input type="text" class="form-control" name="menu" value="{{ old('menu') }}" placeholder="Enter Menu e.g user">
+								<input type="text" class="form-control" name="menu" value="{{ old('menu') }}" placeholder="Enter Menu e.g user" required>
 								<span style="color: red">{{ $errors->first('menu') }}</span>
 							</div>
 						</div>
@@ -85,12 +85,12 @@
                                     <tbody id="tbody">
                                         <tr>
                                             <td>
-                                                <input type="text" class="form-control" name="column_names[]" value="{{ old('menu') }}" placeholder="Enter Menu e.g user">
+                                                <input type="text" class="form-control" name="column_names[]" value="" placeholder="Enter column name" required>
+                                                <span style="color: red">{{ $errors->first('column_names') }}</span>
                                             </td>
                                             <td style="width:250px">
                                                 <select name="types[]" id="" class="form-control js-example-basic-single">
-                                                    <option value="" selected>Select type</option>
-                                                    <option value="integer">INT</option>
+                                                    <option value="integer" selected>INT</option>
                                                     <option value="string">VARCHAR</option>
                                                     {{-- <option value="blob">BLOB (image/file/docs)</option> --}}
                                                     <option value="boolean">BOOLEAN</option>

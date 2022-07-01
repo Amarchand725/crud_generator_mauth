@@ -52,6 +52,8 @@ Route::group(['prefix' => 'admin'], function() {
 	});
 });
 
+Route::get('menu/delete/{id}', 'MenuController@destroy');
+
 Route::resource('computer', 'ComputerController');
 Route::resource('product', 'ProductController');
 Route::resource('car', 'CarController');
