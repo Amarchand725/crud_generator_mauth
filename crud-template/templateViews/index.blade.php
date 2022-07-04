@@ -1,13 +1,13 @@
 @extends('layouts.admin.app')
-@section('title', '{create_index_title}')
+@section('title', $page_title)
 @section('content')
 <input type="hidden" id="page_url" value="{{ route('{index_route}.index') }}">
 <section class="content-header">
     <div class="content-header-left">
-        <h1>ALL {create_index_title}</h1>
+        <h1>{{ $page_title }}</h1>
     </div>
     <div class="content-header-right">
-        <a href="{{ route('{create_route}.create') }}" class="btn btn-primary btn-sm">{create_create_title}</a>
+        <a href="{{ route('{create_route}.create') }}" data-toggle="tooltip" data-placement="left" title="{create_create_title}" class="btn btn-primary btn-sm">{create_create_title}</a>
     </div>
 </section>
 
@@ -39,13 +39,13 @@
                         </thead>
                         <tbody id="body">
                             @foreach($models as $key=>$model)
-                                <tr id="id-{{ $model->id }}">
+                            <tr id="id-{{ $model->id }}">
                                     <td>{{  $models->firstItem()+$key }}.</td>
                                     {index}
                                 </tr>
                             @endforeach
                             <tr>
-                                <td colspan="6">
+                                <td colspan="{totalColumns}">
                                     Displying {{$models->firstItem()}} to {{$models->lastItem()}} of {{$models->total()}} records
                                     <div class="d-flex justify-content-center">
                                         {!! $models->links('pagination::bootstrap-4') !!}

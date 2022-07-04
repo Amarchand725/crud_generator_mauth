@@ -1,13 +1,13 @@
 @extends('layouts.admin.app')
-@section('title', 'All PRODUCTS')
+@section('title', $page_title)
 @section('content')
 <input type="hidden" id="page_url" value="{{ route('product.index') }}">
 <section class="content-header">
     <div class="content-header-left">
-        <h1>ALL All PRODUCTS</h1>
+        <h1>{{ $page_title }}</h1>
     </div>
     <div class="content-header-right">
-        <a href="{{ route('product.create') }}" class="btn btn-primary btn-sm">ADD NEW PRODUCT</a>
+        <a href="{{ route('product.create') }}" data-toggle="tooltip" data-placement="left" title="Add New Product" class="btn btn-primary btn-sm">Add New Product</a>
     </div>
 </section>
 
@@ -39,13 +39,13 @@
                         </thead>
                         <tbody id="body">
                             @foreach($models as $key=>$model)
-                                <tr id="id-{{ $model->id }}">
+                            <tr id="id-{{ $model->id }}">
                                     <td>{{  $models->firstItem()+$key }}.</td>
                                     <td>{{ $model->name }}</td><td>{{ $model->description }}</td><td>{{ $model->price }}</td><td>@if($model->status)<span class="label label-success">Active</span>@else<span class="label label-danger">In-Active</span>@endif</td><td width="250px"><a href="{{ route("product.show", $model->id) }}" data-toggle="tooltip" data-placement="top" title="Show Product" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a><a href="{{ route("product.edit", $model->id) }}" data-toggle="tooltip" data-placement="top" title="Edit Product" class="btn btn-primary btn-xs" style="margin-left: 3px;"><i class="fa fa-edit"></i> Edit</a><button data-toggle="tooltip" data-placement="top" title="Delete Product" class="btn btn-danger btn-xs delete" data-slug="{{ $model->id }}" data-del-url="{{ route("product.destroy", $model->id) }}" style="margin-left: 3px;"><i class="fa fa-trash"></i> Delete</button></td>
                                 </tr>
                             @endforeach
                             <tr>
-                                <td colspan="6">
+                                <td colspan="8">
                                     Displying {{$models->firstItem()}} to {{$models->lastItem()}} of {{$models->total()}} records
                                     <div class="d-flex justify-content-center">
                                         {!! $models->links('pagination::bootstrap-4') !!}

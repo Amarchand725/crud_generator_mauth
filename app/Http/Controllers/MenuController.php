@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use DB;
 use Artisan;
 use Schema;
-
+use File;
 class MenuController extends Controller
 {
     /**
@@ -64,10 +64,10 @@ class MenuController extends Controller
         require base_path()."/crud-template/config.php";
 
         $this->validate($request, [
+            'menu' => 'required|unique:menus,menu',
             'menu_of' => 'required',
             'icon' => 'required',
             'label' => 'required',
-            'menu' => 'required',
             'column_names' => 'required',
             'column_names.*' => 'required',
         ]);
@@ -80,11 +80,12 @@ class MenuController extends Controller
                 'parent_id' => $request->parent_id,
                 'icon' => $request->icon,
                 'label' => $request->label,
-                'menu' => $request->menu,
+                'menu' => str_replace(' ', '_', strtolower($request->menu)),
                 'url' => $request->menu_of.'/'.str_replace(' ', '_', strtolower($request->menu)),
             ]);
 
             if($model){
+                $request['url'] = $request->menu_of.'/'.str_replace(' ', '_', strtolower($request->menu));
                 $this->addEntryInRoutes($request);
                 $this->createMigration($request);
                 $this->createController($request);
@@ -135,16 +136,13 @@ class MenuController extends Controller
     public function update(Request $request, Menu $menu)
     {
         $this->validate($request, [
+            'icon' => 'required',
             'label' => 'required',
         ]);
 
         try{
-            $url_menu = str_replace(' ', '-', $request->menu);
-            $menu->menu_of = $request->menu_of;
-            $menu->parent_id = $request->parent_id;
             $menu->icon = $request->icon;
             $menu->label = $request->label;
-            $menu->url = $request->menu_of.'/'.Str::lower($url_menu);
             $menu->save();
 
             if($menu){
@@ -165,57 +163,66 @@ class MenuController extends Controller
     {
         $model = Menu::where('id', $id)->first();
         if($model){
+            //delete resource route from web
+            $controller_name = str_replace(' ', '', ucwords($model->menu)) ;
+            $replace_line = "Route::resource('". $model->url."', '". $controller_name ."Controller');";
+
+            $route_file = base_path().'/routes/web.php';
+            $contents = file_get_contents($route_file);
+            $contents = str_replace($replace_line, ' ', $contents);
+            file_put_contents($route_file, $contents);
+
+            //delete migration file
+            $migration_file = Str::plural(str_replace(' ', '_', strtolower($model->menu)));
+            $migration_file_name = '_create_'.$migration_file ."_table";
+            foreach(File::allFiles('database/migrations') as $file){
+                if(str_contains($file,$migration_file_name)){
+                    DB::table('migrations')->where('migration', $file)->delete();
+                    unlink($file);
+                }
+            }
+
             //delete views with all files
-            // $modelName = str_replace(' ', '', ucwords($model->menu)) ;
-            // $viewFolderName = Str::plural(str::lower($modelName));
-            // $viewFolderPath = 'resources/views/'.$viewFolderName;
-            // if (\File::exists($viewFolderPath)){
-            //     \File::deleteDirectory($viewFolderPath);
-            //     return 'deleted';
-            // }else{
-            //     return 'not found';
-            // }
+            $modelName = str_replace(' ', '', ucwords($model->menu)) ;
+            $viewFolderName = Str::plural(str::lower($modelName));
+            $viewFolderPath = 'resources/views/'.$viewFolderName;
+            if (\File::exists($viewFolderPath)){
+                \File::deleteDirectory($viewFolderPath);
+            }
 
             //delete model
-            // $modelName = str_replace(' ', '', ucwords($model->menu));
-            // $model_name = $modelName  .".php";
-            // $modelPath = base_path('app/Models/').$model_name;
-            // if(file_exists($modelPath)){
-            //     unlink($modelPath);
-            //     return 'deleted';
-            // }else{
-            //     return 'not found';
-            // }
+            $modelName = str_replace(' ', '', ucwords($model->menu));
+            $model_name = $modelName  .".php";
+            $modelPath = base_path('app/Models/').$model_name;
+            if(file_exists($modelPath)){
+                unlink($modelPath);
+            }
 
             //delete controller
-            // $modelName = str_replace(' ', '', ucwords($model->menu)) ;
-            // $ControllerName = $modelName  ."Controller.php";
-            // $controllerPath = base_path('app/Http/Controllers/').$ControllerName;
-            // if(file_exists($controllerPath)){
-            //     unlink($controllerPath);
-            //     return 'deleted';
-            // }else{
-            //     return 'not found';
-            // }
+            $modelName = str_replace(' ', '', ucwords($model->menu)) ;
+            $ControllerName = $modelName  ."Controller.php";
+            $controllerPath = base_path('app/Http/Controllers/').$ControllerName;
+            if(file_exists($controllerPath)){
+                unlink($controllerPath);
+            }
 
             //delete table from database
-            // $table_name = Str::plural(str_replace(' ', '_', strtolower($model->menu)));
-            // Schema::drop($table_name); //Delete table from database
-            // return 'success';
-        }
+            $table_name = Str::plural(str_replace(' ', '_', strtolower($model->menu)));
+            Schema::drop($table_name);
 
-        /* $model = $menu->delete();
-        if($model){
-            return 1;
-        }else{
-            return 0;
-        } */
+            $model->delete();
+
+            if($model){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
     }
 
     private function addEntryInRoutes($request){
-        $model_name = str_replace(' ', '_', strtolower($request->menu));
         $controller_name = str_replace(' ', '', ucwords($request->menu)) ;
-        $content = "Route::resource('". $model_name."', '". $controller_name ."Controller');";
+        $content = "Route::resource('". $request->url."', '". $controller_name ."Controller');";
         $myfile = fopen(ROUTES_FILE, "a") or die("Unable to open file!");
 
         $txt = PHP_EOL . $content;
@@ -264,10 +271,13 @@ class MenuController extends Controller
     }
 
     private function createController($data){
+    	$menu_label = $data->label;
     	$modelName = str_replace(' ', '', ucwords($data->menu)) ;
         $route_menu = str_replace(' ', '_', strtolower($data->menu));
     	$ControllerName = $modelName  ."Controller";
-		$viewFolderName = Str::plural(str::lower($modelName));
+
+		$viewFolderName = Str::plural(str_replace(' ', '_', strtolower($data->menu)));
+
     	$root = base_path();
     	$templateFolder = $root ."/crud-template";
     	$newDir = CONTROLLER_PATH ;
@@ -356,7 +366,7 @@ class MenuController extends Controller
         $modelName = str_replace(' ', '', ucwords($data->menu)) ;
 
         $viewFolderName =$table_name;
-        $controller_name = $modelName  ."Controller";
+        // $controller_name = $modelName  ."Controller";
 
     	$root = base_path();
     	$templateFolder = $root ."/crud-template";
@@ -371,22 +381,22 @@ class MenuController extends Controller
 
     	$form = '';
     	$edit_form = '';
+    	$show_form = '';
     	$index_page = "";
     	$show  = "";
         $t_columns = "";
+
     	$columns = DB::select('show columns from ' . $table_name);
-        $index_title = ucwords($data->menu);
-        $index_page_title = 'All '. Str::plural(Str::upper($index_title));
-        $create_page_title = 'ADD NEW '. Str::upper($index_title);
+        $total_columns = count($columns);
+        $create_page_title = ucwords($data->menu);
         foreach ($columns as $value) {
-            
             if ($value->Field != 'id' && $value->Field != 'deleted_at' && $value->Field != 'created_at' && $value->Field != 'updated_at') {
                 $type = explode('(', $value->Type);
-
                 $t_columns.='<th>'.Str::upper($value->Field).'</th>';
 
                 $form .= '<div class="form-group">' ."\n";
                 $edit_form .= '<div class="form-group">' ."\n";
+                $show_form .= '<div class="form-group">' ."\n";
 
                 $form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
                 if($value->Null=='NO'){
@@ -416,12 +426,14 @@ class MenuController extends Controller
                 '</div>';
 
                 $edit_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
+                $show_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
                 if($value->Null=='NO'){
                     $edit_form .= ' <span style="color:red">*</span>';
                 }
 
                 $edit_form .= '</label>' ."\n";
-                    
+                $show_form .= '</label>' ."\n";
+
                 $edit_form .='<div class="col-sm-8">';
                         if($type[0]=='text'){
                             $edit_form .= '<textarea class="form-control" id="'.$value->Field.'" name="'.$value->Field.'">{{ $model->'.$value->Field.' }}</textarea>'."\n";
@@ -441,7 +453,17 @@ class MenuController extends Controller
                         $edit_form .= '<span style="color: red">{{ $errors->first("'.$value->Field.'") }}</span>'.
                     '</div>'.
                 '</div>';
-                
+
+                $show_form .='<div class="col-sm-8">'.
+                                '@if($model->status)'.
+                                    '<span class="label label-success">Active</span>'.
+                                '@else'.
+                                    '<span class="label label-danger">In-Active</span>'.
+                                '@endif'.
+                                '<div>{{ $model->'.$value->Field.' }}</div>'.
+                            '</div>'.
+                        '</div>';
+
                 if($value->Field=='status'){
                     $index_page .= '<td>'.
                                         '@if($model->status)'.
@@ -455,8 +477,6 @@ class MenuController extends Controller
                 }else{
                     $index_page .= '<td>{{ $model->'.$value->Field.' }}</td>';
                 }
-            
-                $show .= '<p> {{$model->'.$value->Field.'}} </p>';
             }
 		}
 
@@ -475,7 +495,7 @@ class MenuController extends Controller
 		$createForm = str_replace('{createForm}', $createForm, $createFile);
 		$createForm = str_replace('{store_route}', '{{ route("'.$route_menu.'.store") }}', $createForm);
 		$createForm = str_replace('{view_all_route}', '{{ route("'.$route_menu.'.index") }}', $createForm);
-		$createForm = str_replace('{page_title}', 'ADD NEW '.Str::upper($modelName), $createForm);
+		$createForm = str_replace('{page_title}', 'Add New '.$create_page_title, $createForm);
 
 		$updateForm = $edit_form;
         $updateForm .= '<label for="" class="col-sm-2 control-label"></label>'."\n".
@@ -485,22 +505,21 @@ class MenuController extends Controller
 		$updateForm = str_replace('{createForm}', $updateForm, $editFile);
         $updateForm = str_replace('{store_route}', '{{ route("'.$route_menu.'.update", $model->id) }}', $updateForm);
 		$updateForm = str_replace('{view_all_route}', '{{ route("'.$route_menu.'.index") }}', $updateForm);
-        $updateForm = str_replace('{page_title}', 'EDIT '.Str::upper($modelName), $updateForm);
+        $updateForm = str_replace('{page_title}', 'Edit '.$create_page_title, $updateForm);
 
 		$searchForm = str_replace('{index}', $index_page, $searchFile);
+		$searchForm = str_replace('{totalColumns}', $total_columns, $searchForm);
 
-		$index = str_replace('{create_index_title}', $index_page_title, $indexFile);
-		$index = str_replace('{create_create_title}', $create_page_title, $index);
+		$index = str_replace('{create_create_title}', 'Add New '.$create_page_title, $indexFile);
 		$index = str_replace('{create_route}', $route_menu, $index);
 		$index = str_replace('{index_route}', $route_menu, $index);
 		$index = str_replace('{tcolumns}', $t_columns, $index);
 		$index = str_replace('{index}', $index_page, $index);
+		$index = str_replace('{totalColumns}', $total_columns, $index);
 
-		$show = str_replace('{show}', $show, $showFile);
-
-        if(!is_dir($newDir)){
-			mkdir($newDir);
-		}
+		$show = str_replace('{show_form}', $show_form, $showFile);
+        $show = str_replace('{view_all_route}', '{{ route("'.$route_menu.'.index") }}', $show);
+        $show = str_replace('{page_title}', 'Show '.$create_page_title, $show);
 
 		if(!is_dir($newViewDir)){
 			mkdir($newViewDir);

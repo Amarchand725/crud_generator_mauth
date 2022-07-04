@@ -52,17 +52,11 @@ Route::group(['prefix' => 'admin'], function() {
 	});
 });
 
-Route::get('menu/delete/{id}', 'MenuController@destroy');
 
-Route::resource('computer', 'ComputerController');
-Route::resource('product', 'ProductController');
-Route::resource('car', 'CarController');
-Route::resource('mobile', 'MobileController');
-Route::resource('test', 'TestController');
-Route::resource('song', 'SongController');
-Route::resource('song', 'SongController');
-Route::resource('newtechnology', 'NewTechnologyController');
-Route::resource('amar', 'AmarController');
-Route::resource('computer', 'ComputerController');
-Route::resource('computer', 'ComputerController');
-Route::resource('product', 'ProductController');
+
+Route::resource('admin/computer', 'ComputerController');
+Route::resource('admin/product', 'ProductController');
+Route::resource('admin/uniform', 'UniformController');
+
+Route::resource('admin/medical', 'MedicalController');
+Route::resource('admin/technology', 'TechnologyController');

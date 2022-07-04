@@ -1,5 +1,5 @@
 @extends('layouts.admin.app')
-@section('title', 'EDIT PRODUCT')
+@section('title', 'Edit Product')
 @push('css')
     <style>
         select {
@@ -10,10 +10,10 @@
 @section('content')
 <section class="content-header">
 	<div class="content-header-left">
-		<h1>EDIT PRODUCT</h1>
+		<h1>Edit Product</h1>
 	</div>
 	<div class="content-header-right">
-		<a href="{{ route("product.index") }}" class="btn btn-primary btn-sm">View All</a>
+		<a href="{{ route("product.index") }}" data-toggle="tooltip" data-placement="left" title="{{ $view_all_title }}" class="btn btn-primary btn-sm">{{ $view_all_title }}</a>
 	</div>
 </section>
 <section class="content">

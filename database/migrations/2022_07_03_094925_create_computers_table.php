@@ -14,7 +14,7 @@ class CreateComputersTable extends Migration
     {
         Schema::create('computers', function (Blueprint $table) {
             $table->id();
-            $table->string("name"); $table->text("description")->nullable(); $table->integer("price")->nullable(); $table->boolean("type")->default("1");
+            $table->string("name"); $table->text("description")->nullable(); $table->integer("price")->nullable();
             $table->boolean('status')->default(1);
             $table->string('deleted_at')->nullable();
             $table->timestamps();

@@ -1,6 +1,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Menu;
 use App\Models\{modelName};
 use DB;
 use Session;
@@ -22,7 +23,8 @@ class {ControllerName} extends Controller
             $models = $query->paginate(10);
             return (string) view('{viewFolderName}._search', compact('models'));
         }
-        $page_title = 'All {modelName}s';
+
+        $page_title = Menu::where('menu', '{menuName}')->first()->label;
         $models = {modelName}::orderby('id', 'desc')->paginate(10);
         return view('{viewFolderName}.index', compact('models', 'page_title'));
     }
@@ -34,7 +36,8 @@ class {ControllerName} extends Controller
      */
     public function create()
     {
-        return view('{viewFolderName}.create');
+        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
+        return view('{viewFolderName}.create', compact('view_all_title'));
     }
 
     /**
@@ -69,10 +72,9 @@ class {ControllerName} extends Controller
      */
     public function show($id)
     {
-
+        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
         $model = {modelName}::findOrFail($id);
-
-      	return view('{viewFolderName}.show', array('model' => $model));
+      	return view('{viewFolderName}.show', compact('view_all_title', 'model'));
     }
 
     /**
@@ -83,8 +85,9 @@ class {ControllerName} extends Controller
      */
     public function edit($id)
     {
+        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
         $model = {modelName}::findOrFail($id);
-        return view('{viewFolderName}.edit')->withModel($model);
+        return view('{viewFolderName}.edit', compact('view_all_title', 'model'));
     }
 
     /**

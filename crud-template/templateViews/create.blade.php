@@ -13,7 +13,7 @@
 		<h1>{page_title}</h1>
 	</div>
 	<div class="content-header-right">
-		<a href="{view_all_route}" class="btn btn-primary btn-sm">View All</a>
+		<a href="{view_all_route}" data-toggle="tooltip" data-placement="left" title="{{ $view_all_title }}" class="btn btn-primary btn-sm">{{ $view_all_title }}</a>
 	</div>
 </section>
 <section class="content">

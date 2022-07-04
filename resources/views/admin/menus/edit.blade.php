@@ -19,9 +19,9 @@
                     <div class="box box-info">
                         <div class="box-body">
                             <div class="form-group">
-                                <label for="" class="col-sm-2 control-label">Menu of <span style="color:red">*</span></label>
+                                <label for="" class="col-sm-2 control-label">Menu of </label>
                                 <div class="col-sm-8">
-                                    <select name="menu_of" id="" class="form-control js-example-basic-single">
+                                    <select name="menu_of" id="" disabled class="form-control js-example-basic-single">
                                         <option value="admin" {{ $menu->menu_of=='admin'?'selected':'' }}>Admin</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ Str::lower($role->name) }}" {{ $menu->menu_of==Str::lower($role->name)?'selected':'' }}>{{ $role->name }}</option>
@@ -34,7 +34,7 @@
                             <div class="form-group">
                                 <label for="" class="col-sm-2 control-label">Parent Menu </label>
                                 <div class="col-sm-8">
-                                    <select name="parent_id" id="" class="form-control js-example-basic-single">
+                                    <select name="parent_id" disabled id="" class="form-control js-example-basic-single">
                                         <option value="" selected>Select parent</option>
                                         @foreach ($parent_menus as $p_menu)
                                             <option value="{{ $p_menu->id }}" {{ $menu->id==$p_menu->id?'selected':'' }}>{{ $p_menu->menu }}</option>

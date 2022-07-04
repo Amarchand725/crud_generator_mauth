@@ -20,7 +20,7 @@ class CreateMenusTable extends Migration
             $table->string('menu');
             $table->string('icon');
             $table->string('label');
-            $table->string('url');
+            $table->text('url');
             $table->boolean('status')->default(1);
             $table->string('deleted_at')->nullable();
             $table->timestamps();

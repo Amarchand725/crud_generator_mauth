@@ -9,14 +9,14 @@
 
             @foreach (menus() as $menu)
                 @if(Auth::guard('admin') || $menu->menu_of=='general')
-                    <li class="treeview">
-                        <a href="{{ route(str_replace(' ', '_', strtolower($menu->menu)).'.index') }}" class="{{ request()->is(Str::lower($menu->url)) || request()->is(Str::lower($menu->menu).'/*')? 'active' : '' }}">
+                    <li class="treeview id-{{ $menu->id }}">
+                        <a href="{{ route(str_replace(' ', '_', strtolower($menu->menu)).'.index') }}" class="{{ request()->is($menu->url) || request()->is($menu->url.'/*')? 'active' : '' }}">
                             {!! $menu->icon !!} <span>{{ $menu->label }}</span>
                         </a>
                     </li>
                 @elseif(Auth::user()->hasRole($menu->menu_of) || $menu->menu_of=='general')
-                    <li class="treeview">
-                        <a href="{{ route(str_replace(' ', '_', strtolower($menu->menu)).'.index') }}" class="{{ request()->is(Str::lower($menu->url)) || request()->is(Str::lower($menu->menu).'/*')? 'active' : '' }}">
+                    <li class="treeview id-{{ $menu->id }}">
+                        <a href="{{ route($menu->url.'.index') }}" class="{{ request()->is($menu->url) || request()->is($menu->menu.'/*')? 'active' : '' }}">
                             <i class="fas fa-biking"></i> <span>{{ $menu->label }}</span>
                         </a>
                     </li>

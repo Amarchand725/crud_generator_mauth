@@ -12,7 +12,7 @@ class Computer extends Model
 
     static function getValidationRules(){
     	$rules = [
-		    'name' => 'required','type' => 'required'
+		    'name' => 'required'
 		];
 		return $rules;
     }

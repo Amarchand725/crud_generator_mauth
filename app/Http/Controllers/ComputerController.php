@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Menu;
 use App\Models\Computer;
 use DB;
 use Session;
@@ -18,12 +19,13 @@ class ComputerController extends Controller
         if($request->ajax()){
             $query = Computer::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("price", "like", "%". $request["search"] ."%");$query->orWhere("type", "like", "%". $request["search"] ."%");
+                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("price", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
             return (string) view('computers._search', compact('models'));
         }
-        $page_title = 'All Computers';
+
+        $page_title = Menu::where('menu', 'computer')->first()->label;
         $models = Computer::orderby('id', 'desc')->paginate(10);
         return view('computers.index', compact('models', 'page_title'));
     }
@@ -35,7 +37,8 @@ class ComputerController extends Controller
      */
     public function create()
     {
-        return view('computers.create');
+        $view_all_title = Menu::where('menu', 'computer')->first()->label;
+        return view('computers.create', compact('view_all_title'));
     }
 
     /**
@@ -84,8 +87,9 @@ class ComputerController extends Controller
      */
     public function edit($id)
     {
+        $view_all_title = Menu::where('menu', 'computer')->first()->label;
         $model = Computer::findOrFail($id);
-        return view('computers.edit')->withModel($model);
+        return view('computers.edit', compact('view_all_title', 'model'));
     }
 
     /**
