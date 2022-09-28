@@ -33,7 +33,7 @@
                         <thead>
                             <tr>
                                 <th>SL</th>
-                                <th>NAME</th><th>DESCRIPTION</th><th>PRICE</th><th>STATUS</th>
+                                <th>NAME</th><th>DESCRIPTION</th><th>IMAGE</th><th>STATUS</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -41,7 +41,7 @@
                             <?php $__currentLoopData = $models; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$model): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr id="id-<?php echo e($model->id); ?>">
                                     <td><?php echo e($models->firstItem()+$key); ?>.</td>
-                                    <td><?php echo e($model->name); ?></td><td><?php echo e($model->description); ?></td><td><?php echo e($model->price); ?></td><td><?php if($model->status): ?><span class="label label-success">Active</span><?php else: ?><span class="label label-danger">In-Active</span><?php endif; ?></td><td width="250px"><a href="<?php echo e(route("product.show", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Show Product" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a><a href="<?php echo e(route("product.edit", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Edit Product" class="btn btn-primary btn-xs" style="margin-left: 3px;"><i class="fa fa-edit"></i> Edit</a><button data-toggle="tooltip" data-placement="top" title="Delete Product" class="btn btn-danger btn-xs delete" data-slug="<?php echo e($model->id); ?>" data-del-url="<?php echo e(route("product.destroy", $model->id)); ?>" style="margin-left: 3px;"><i class="fa fa-trash"></i> Delete</button></td>
+                                    <td><?php echo e($model->name); ?></td><td><?php echo e($model->description); ?></td><td><?php echo e($model->image); ?></td><td><?php if($model->status): ?><span class="label label-success">Active</span><?php else: ?><span class="label label-danger">In-Active</span><?php endif; ?></td><td width="250px"><a href="<?php echo e(route("product.show", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Show Product" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a><a href="<?php echo e(route("product.edit", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Edit Product" class="btn btn-primary btn-xs" style="margin-left: 3px;"><i class="fa fa-edit"></i> Edit</a><button data-toggle="tooltip" data-placement="top" title="Delete Product" class="btn btn-danger btn-xs delete" data-slug="<?php echo e($model->id); ?>" data-del-url="<?php echo e(route("product.destroy", $model->id)); ?>" style="margin-left: 3px;"><i class="fa fa-trash"></i> Delete</button></td>
                                 </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <tr>

@@ -45,6 +45,9 @@ Route::group(['prefix' => 'admin'], function() {
         Route::resource('page', 'App\Http\Controllers\PageController');
         Route::resource('page_setting', 'App\Http\Controllers\PageSettingController');
 
+        //permissions
+        Route::resource('permission', 'Admin\PermissionController');
+
         //Roles
         Route::resource('role', 'App\Http\Controllers\RoleController');
 
@@ -52,11 +55,17 @@ Route::group(['prefix' => 'admin'], function() {
 	});
 });
 
-
-
-Route::resource('admin/computer', 'ComputerController');
-Route::resource('admin/product', 'ProductController');
-Route::resource('admin/uniform', 'UniformController');
-
-Route::resource('admin/medical', 'MedicalController');
-Route::resource('admin/technology', 'TechnologyController');
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Route::resource('admin/project', 'ProjectController');

@@ -162,6 +162,7 @@
                                     '<option value="text">TEXT</option>'+
                                     '<option value="bigInteger">BIGINT</option>'+
                                     '<option value="float">FLOAT</option>'+
+                                    '<option value="binary">BLOB (Image or other attachments)</option>'+
                                 '</select>'+
                             '</td>'+
                             '<td>'+

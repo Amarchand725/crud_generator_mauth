@@ -7,6 +7,14 @@
                 </a>
             </li>
 
+            {{-- @can('permission-list') --}}
+            <li class="treeview">
+                <a href="{{ route('permission.index') }}" class="{{ request()->is('permission') || request()->is('permission/create') || request()->is('permission/*/edit') ? 'active' : '' }}">
+                    <i class="fa fa-lock"></i> <span>Permissions</span>
+                </a>
+            </li>
+            {{-- @endcan --}}
+
             @foreach (menus() as $menu)
                 @if(Auth::guard('admin') || $menu->menu_of=='general')
                     <li class="treeview id-{{ $menu->id }}">

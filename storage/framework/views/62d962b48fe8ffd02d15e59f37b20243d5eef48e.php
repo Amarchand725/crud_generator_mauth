@@ -28,10 +28,22 @@
 <span style="color: red"><?php echo e($errors->first("title")); ?></span></div></div><div class="form-group">
 <label for="description" class="col-sm-2 control-label">Description</label>
 <div class="col-sm-8"><textarea class="form-control" id="description" name="description" placeholder="Enter description"><?php echo e(old("description")); ?></textarea>
-<span style="color: red"><?php echo e($errors->first("description")); ?></span></div></div><div class="form-group">
-<label for="price" class="col-sm-2 control-label">Price</label>
-<div class="col-sm-8"><input type="number" class="form-control" name="price" value="<?php echo e(old("price")); ?>" placeholder="Enter price">
-<span style="color: red"><?php echo e($errors->first("price")); ?></span></div></div><div class="form-group">
+<span style="color: red"><?php echo e($errors->first("description")); ?></span></div></div>
+<div class="form-group">
+    <label for="price" class="col-sm-2 control-label">Price</label>
+    <div class="col-sm-8">
+        <input type="number" class="form-control" name="price" value="<?php echo e(old("price")); ?>" placeholder="Enter price">
+        <span style="color: red"><?php echo e($errors->first("price")); ?></span>
+    </div>
+</div>
+<div class="form-group">
+    <label for="Image" class="col-sm-2 control-label">Image</label>
+    <div class="col-sm-8">
+        <input type="file" accept="image*" class="form-control" name="image" id="Image">
+        <span style="color: red"><?php echo e($errors->first("image")); ?></span>
+    </div>
+</div>
+<div class="form-group">
 <label for="status" class="col-sm-2 control-label">Status <span style="color:red">*</span></label>
 <div class="col-sm-8"><select class="form-control" name="status"><option value="1" <?php echo e(old("status")==1?"selected":""); ?>>Active</option><option value="0" <?php echo e(old("status")==0?"selected":""); ?>>In Active</option></select><span style="color: red"><?php echo e($errors->first("status")); ?></span></div></div><label for="" class="col-sm-2 control-label"></label>
 <div class="col-sm-6"><button type="submit" class="btn btn-success pull-left">Save</button></div>

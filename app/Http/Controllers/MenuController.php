@@ -47,6 +47,30 @@ class MenuController extends Controller
      */
     public function create()
     {
+        // $columns = DB::select('show columns from ' . 'states');
+        // dd($columns);
+        // foreach($columns as $value){
+        //     $type = explode('(', $value->Type);
+        //     // return $type[0];
+        //     // if($column->Type=='text'){
+        //     //     return 'text';
+        //     // }
+        //     // $xp = explode('(', $column->Type);
+        //     if($type[0]=='binary'){ //image binary type
+        //         return $type[0];
+        //         return 'image';
+        //     }
+        //     // if($xp[0]=='varchar'){
+        //     //     return 'varchar';
+        //     // }
+
+        //     // if($xp[0]=='varchar'){
+        //     //     return 'varchar';
+        //     // }
+
+        // }
+
+
         $page_title = 'Add New Menu';
         $roles = Role::where('status', 1)->get();
         $parent_menus = Menu::where('parent_id', null)->get();
@@ -289,22 +313,39 @@ class MenuController extends Controller
 
         $search_columns  = '';
         $boolean = true;
+        $upload = false;
 		foreach ($columns as $key=>$value) {
             if ($value->Field != 'id' && $value->Field != 'deleted_at' && $value->Field != 'created_at' && $value->Field != 'updated_at' && $value->Field != 'status') {
+                $type = explode('(', $value->Type);
+
                 if ($boolean) {
                     $boolean = false;
                     $search_columns .=  '$query->where("'.$value->Field.'", "like", "%". $request["search"] ."%");';
                 }else{
                     $search_columns .=  '$query->orWhere("'.$value->Field.'", "like", "%". $request["search"] ."%");';
                 }
+                if($type[0]=='binary' || $type[0]=='varbinary' || $type[0]=='blob'){
+                    $upload = $value->Field;
+                }
             }
 		}
+
+        $upload_file = "";
+        if($upload){
+            $upload_file  .= 'if (isset($request->'.$upload.')) {'.
+                                '$'.$upload.' = date("d-m-Y-His").".".$request->file("'.$upload.'")->getClientOriginalExtension();'.
+                                '$request->'.$upload.'->move(public_path("/admin/'.$table_name.'"), $'.$upload.');'.
+                                '$input["'.$upload.'"]'.' = $'.$upload.';'.
+                            '}';
+        }
+
 
     	$str1 = str_replace('{modelName}', $modelName, $controllerFile);
     	$str1 = str_replace('{menuName}', $route_menu, $str1);
     	$str1 = str_replace('{viewFolderName}', $viewFolderName, $str1);
     	$str1 = str_replace('{ControllerName}', $ControllerName, $str1);
     	$str1 = str_replace('{searchColumns}', $search_columns, $str1);
+    	$str1 = str_replace('{upload}', $upload_file, $str1);
 
 		$ext = ".php";
 		$str1  = "<?php \n". $str1;
@@ -387,6 +428,7 @@ class MenuController extends Controller
         $t_columns = "";
 
     	$columns = DB::select('show columns from ' . $table_name);
+
         $total_columns = count($columns);
         $create_page_title = ucwords($data->menu);
         foreach ($columns as $value) {
@@ -404,10 +446,10 @@ class MenuController extends Controller
                 }
 
                 $form .= '</label>' ."\n";
-
+                $bool = false;
                 $form .= '<div class="col-sm-8">';
                         if($type[0]=='text'){
-                            $form .= '<textarea class="form-control" id="'.$value->Field.'" name="'.$value->Field.'" placeholder="Enter '.$value->Field.'">{{ old("'.$value->Field.'") }}</textarea>'."\n";
+                            $form .= '<textarea class="form-control ckeditor" id="'.$value->Field.'" name="'.$value->Field.'" placeholder="Enter '.$value->Field.'">{{ old("'.$value->Field.'") }}</textarea>'."\n";
                         }elseif($type[0]=='tinyint'){
                             $form .= '<select class="form-control" name="status">'.
                                         '<option value="1" {{ old("status")==1?"selected":"" }}>Active</option>'.
@@ -417,13 +459,26 @@ class MenuController extends Controller
                             $form .= '<input type="text" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
                         }elseif($type[0]=='int' || $type[0]=='bigint' || $type[0]=='decimal' || $type[0]=='float' || $type[0]=='double'){
                             $form .= '<input type="number" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }elseif($type[0]=='binary' || $type[0]=='varbinary' || $type[0]=='blob'){
+                            $bool = true;
+                            $form .= '<input type="file" class="form-control" id="imgInput" name="'.$value->Field.'" accept="image/*">'."\n";
                         }else{
                             $form .= '<input type="'.$type[0].'" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
                         }
 
                         $form .= '<span style="color: red">{{ $errors->first("'.$value->Field.'") }}</span>'.
-                    '</div>'.
-                '</div>';
+                    '</div>';
+
+                $form .= '</div>';
+                if($bool){
+                    $form .= '<div class="form-group">' ."\n";
+                    $form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">PREVIEW</label>' ."\n";
+                    $form .= '<div class="col-sm-8">';
+                                $default_image_path = "'public/default.png'";
+                                    $form .= '<img src="{{ asset('.$default_image_path.') }}" id="preview"  width="100px" alt="">';
+                                    $form .= '</div>';
+                    $form .= '</div>';
+                }
 
                 $edit_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
                 $show_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);

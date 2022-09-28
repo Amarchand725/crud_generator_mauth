@@ -1,12 +1,13 @@
+<?php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
-use App\Models\{modelName};
+use App\Models\Project;
 use DB;
 use Str;
 
-class {ControllerName} extends Controller
+class ProjectController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,17 +17,17 @@ class {ControllerName} extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $query = {modelName}::orderby('id', 'desc')->where('id', '>', 0);
+            $query = Project::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                {searchColumns}
+                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("date", "like", "%". $request["search"] ."%");$query->orWhere("image", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
-            return (string) view('{viewFolderName}._search', compact('models'));
+            return (string) view('projects._search', compact('models'));
         }
 
-        $page_title = Menu::where('menu', '{menuName}')->first()->label;
-        $models = {modelName}::orderby('id', 'desc')->paginate(10);
-        return view('{viewFolderName}.index', compact('models', 'page_title'));
+        $page_title = Menu::where('menu', 'project')->first()->label;
+        $models = Project::orderby('id', 'desc')->paginate(10);
+        return view('projects.index', compact('models', 'page_title'));
     }
 
     /**
@@ -36,8 +37,8 @@ class {ControllerName} extends Controller
      */
     public function create()
     {
-        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
-        return view('{viewFolderName}.create', compact('view_all_title'));
+        $view_all_title = Menu::where('menu', 'project')->first()->label;
+        return view('projects.create', compact('view_all_title'));
     }
 
     /**
@@ -47,16 +48,21 @@ class {ControllerName} extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, {modelName}::getValidationRules());
+        $this->validate($request, Project::getValidationRules());
         $input = $request->all();
         DB::beginTransaction();
 
         try{
-            {upload}
-	        {modelName}::create($input);
+            if (isset($request->image)) {
+                $image = date("d-m-Y-His").".".$request->file("image")->getClientOriginalExtension();
+                $request->image->move(public_path("/admin/projects"), $image);
+                return $input["image"] = $image;
+            }
+
+	        Project::create($input);
 
             DB::commit();
-            return redirect()->route('{menuName}.index')->with('message', '{modelName} Added Successfully !');
+            return redirect()->route('project.index')->with('message', 'Project Added Successfully !');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
@@ -71,9 +77,9 @@ class {ControllerName} extends Controller
      */
     public function show($id)
     {
-        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
-        $model = {modelName}::findOrFail($id);
-      	return view('{viewFolderName}.show', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'project')->first()->label;
+        $model = Project::findOrFail($id);
+      	return view('projects.show', compact('view_all_title', 'model'));
     }
 
     /**
@@ -84,9 +90,9 @@ class {ControllerName} extends Controller
      */
     public function edit($id)
     {
-        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
-        $model = {modelName}::findOrFail($id);
-        return view('{viewFolderName}.edit', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'project')->first()->label;
+        $model = Project::findOrFail($id);
+        return view('projects.edit', compact('view_all_title', 'model'));
     }
 
     /**
@@ -97,16 +103,16 @@ class {ControllerName} extends Controller
      */
     public function update($id, Request $request)
     {
-        $model = {modelName}::findOrFail($id);
+        $model = Project::findOrFail($id);
 
-	    $this->validate($request, {modelName}::getValidationRules());
+	    $this->validate($request, Project::getValidationRules());
 
         try{
             $input = [];
             foreach($request->toArray() as $key=>$req){
                 if(gettype($req)=='object'){
                     if (isset($key)) {
-                        $folder_name = Str::plural(str_replace(' ', '_', strtolower({modelName})));
+                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Project)));
                         $image = date('d-m-Y-His').'.'.$request->file($key)->getClientOriginalExtension();
                         $request->$key->move(public_path('/admin/assets/'.$folder_name), $image);
                         $input[$key] = $image;
@@ -116,7 +122,7 @@ class {ControllerName} extends Controller
                 }
             }
 	        $model->fill($input)->save();
-            return redirect()->route('{menuName}.index')->with('message', '{modelName} update Successfully !');
+            return redirect()->route('project.index')->with('message', 'Project update Successfully !');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
         }
@@ -130,7 +136,7 @@ class {ControllerName} extends Controller
      */
     public function destroy($id)
     {
-        $model = {modelName}::findOrFail($id);
+        $model = Project::findOrFail($id);
 	    $model->delete();
 
         if($model){

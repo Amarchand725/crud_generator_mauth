@@ -1,12 +1,13 @@
+<?php 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
-use App\Models\{modelName};
+use App\Models\Country;
 use DB;
 use Str;
 
-class {ControllerName} extends Controller
+class CountryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,17 +17,17 @@ class {ControllerName} extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $query = {modelName}::orderby('id', 'desc')->where('id', '>', 0);
+            $query = Country::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                {searchColumns}
+                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("image", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
-            return (string) view('{viewFolderName}._search', compact('models'));
+            return (string) view('countries._search', compact('models'));
         }
 
-        $page_title = Menu::where('menu', '{menuName}')->first()->label;
-        $models = {modelName}::orderby('id', 'desc')->paginate(10);
-        return view('{viewFolderName}.index', compact('models', 'page_title'));
+        $page_title = Menu::where('menu', 'country')->first()->label;
+        $models = Country::orderby('id', 'desc')->paginate(10);
+        return view('countries.index', compact('models', 'page_title'));
     }
 
     /**
@@ -36,8 +37,8 @@ class {ControllerName} extends Controller
      */
     public function create()
     {
-        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
-        return view('{viewFolderName}.create', compact('view_all_title'));
+        $view_all_title = Menu::where('menu', 'country')->first()->label;
+        return view('countries.create', compact('view_all_title'));
     }
 
     /**
@@ -47,16 +48,29 @@ class {ControllerName} extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, {modelName}::getValidationRules());
-        $input = $request->all();
+        $this->validate($request, Country::getValidationRules());
+
         DB::beginTransaction();
 
         try{
-            {upload}
-	        {modelName}::create($input);
+            $input = [];
+            foreach($request->toArray() as $key=>$req){
+                if(gettype($req)=='object'){
+                    if (isset($key)) {
+                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Country)));
+                        $image = date('d-m-Y-His').'.'.$request->file($key)->getClientOriginalExtension();
+
+                        $request->$key->move(public_path('/admin/assets/'.$folder_name), $image);
+                        $input[$key] = $image;
+                    }
+                }else{
+                    $input[$key] = $req;
+                }
+            }
+	        Country::create($input);
 
             DB::commit();
-            return redirect()->route('{menuName}.index')->with('message', '{modelName} Added Successfully !');
+            return redirect()->route('country.index')->with('message', 'Country Added Successfully !');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
@@ -71,9 +85,9 @@ class {ControllerName} extends Controller
      */
     public function show($id)
     {
-        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
-        $model = {modelName}::findOrFail($id);
-      	return view('{viewFolderName}.show', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'country')->first()->label;
+        $model = Country::findOrFail($id);
+      	return view('countries.show', compact('view_all_title', 'model'));
     }
 
     /**
@@ -84,9 +98,9 @@ class {ControllerName} extends Controller
      */
     public function edit($id)
     {
-        $view_all_title = Menu::where('menu', '{menuName}')->first()->label;
-        $model = {modelName}::findOrFail($id);
-        return view('{viewFolderName}.edit', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'country')->first()->label;
+        $model = Country::findOrFail($id);
+        return view('countries.edit', compact('view_all_title', 'model'));
     }
 
     /**
@@ -97,16 +111,16 @@ class {ControllerName} extends Controller
      */
     public function update($id, Request $request)
     {
-        $model = {modelName}::findOrFail($id);
+        $model = Country::findOrFail($id);
 
-	    $this->validate($request, {modelName}::getValidationRules());
+	    $this->validate($request, Country::getValidationRules());
 
         try{
             $input = [];
             foreach($request->toArray() as $key=>$req){
                 if(gettype($req)=='object'){
                     if (isset($key)) {
-                        $folder_name = Str::plural(str_replace(' ', '_', strtolower({modelName})));
+                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Country)));
                         $image = date('d-m-Y-His').'.'.$request->file($key)->getClientOriginalExtension();
                         $request->$key->move(public_path('/admin/assets/'.$folder_name), $image);
                         $input[$key] = $image;
@@ -116,7 +130,7 @@ class {ControllerName} extends Controller
                 }
             }
 	        $model->fill($input)->save();
-            return redirect()->route('{menuName}.index')->with('message', '{modelName} update Successfully !');
+            return redirect()->route('country.index')->with('message', 'Country update Successfully !');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
         }
@@ -130,7 +144,7 @@ class {ControllerName} extends Controller
      */
     public function destroy($id)
     {
-        $model = {modelName}::findOrFail($id);
+        $model = Country::findOrFail($id);
 	    $model->delete();
 
         if($model){

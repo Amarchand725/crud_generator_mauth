@@ -1,4 +1,3 @@
-
 <?php $__env->startSection('title', $page_title); ?>
 <?php $__env->startPush('css'); ?>
     <style>
@@ -162,6 +161,7 @@
                                     '<option value="text">TEXT</option>'+
                                     '<option value="bigInteger">BIGINT</option>'+
                                     '<option value="float">FLOAT</option>'+
+                                    '<option value="binary">BLOB (Image or other attachments)</option>'+
                                 '</select>'+
                             '</td>'+
                             '<td>'+

@@ -7,6 +7,14 @@
                 </a>
             </li>
 
+            
+            <li class="treeview">
+                <a href="<?php echo e(route('permission.index')); ?>" class="<?php echo e(request()->is('permission') || request()->is('permission/create') || request()->is('permission/*/edit') ? 'active' : ''); ?>">
+                    <i class="fa fa-lock"></i> <span>Permissions</span>
+                </a>
+            </li>
+            
+
             <?php $__currentLoopData = menus(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $menu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <?php if(Auth::guard('admin') || $menu->menu_of=='general'): ?>
                     <li class="treeview id-<?php echo e($menu->id); ?>">
