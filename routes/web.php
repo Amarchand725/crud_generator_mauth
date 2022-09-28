@@ -55,6 +55,23 @@ Route::group(['prefix' => 'admin'], function() {
 	});
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  
  
  
@@ -64,8 +81,5 @@ Route::group(['prefix' => 'admin'], function() {
  
  
  
- 
- 
- 
- 
-Route::resource('admin/project', 'ProjectController');
+Route::resource('admin/computer', 'ComputerController');
+Route::resource('admin/product', 'ProductController');

@@ -91,7 +91,6 @@
                                                 <select name="types[]" id="" class="form-control js-example-basic-single">
                                                     <option value="integer" selected>INT</option>
                                                     <option value="string">VARCHAR</option>
-                                                    
                                                     <option value="boolean">BOOLEAN</option>
                                                     <option value="date">DATE</option>
                                                     <option value="time">TIME</option>
@@ -101,6 +100,7 @@
                                                     <option value="decimal">DECIMAL</option>
                                                     <option value="float">FLOAT</option>
                                                     <option value="double">DOUBLE</option>
+                                                    <option value="binary">BLOB (Image or other attachments)</option>
                                                 </select>
                                             </td>
                                             <td>
@@ -153,7 +153,6 @@
                             '</td>'+
                             '<td>'+
                                 '<select name="types[]" id="" class="form-control js-example-basic-single">'+
-                                    '<option value="" selected>Select type</option>'+
                                     '<option value="integer">INT</option>'+
                                     '<option value="string">VARCHAR</option>'+
                                     '<option value="boolean">BOOLEAN</option>'+

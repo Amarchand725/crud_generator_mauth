@@ -33,7 +33,7 @@
                         <thead>
                             <tr>
                                 <th>SL</th>
-                                <th>NAME</th><th>DESCRIPTION</th><th>IMAGE</th><th>STATUS</th>
+                                <th>IMAGE</th><th>NAME</th><th>PRICE</th><th>DESCRIPTION</th><th>DATE</th><th>STATUS</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -41,11 +41,11 @@
                             <?php $__currentLoopData = $models; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$model): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr id="id-<?php echo e($model->id); ?>">
                                     <td><?php echo e($models->firstItem()+$key); ?>.</td>
-                                    <td><?php echo e($model->name); ?></td><td><?php echo e($model->description); ?></td><td><?php echo e($model->image); ?></td><td><?php if($model->status): ?><span class="label label-success">Active</span><?php else: ?><span class="label label-danger">In-Active</span><?php endif; ?></td><td width="250px"><a href="<?php echo e(route("product.show", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Show Product" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a><a href="<?php echo e(route("product.edit", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Edit Product" class="btn btn-primary btn-xs" style="margin-left: 3px;"><i class="fa fa-edit"></i> Edit</a><button data-toggle="tooltip" data-placement="top" title="Delete Product" class="btn btn-danger btn-xs delete" data-slug="<?php echo e($model->id); ?>" data-del-url="<?php echo e(route("product.destroy", $model->id)); ?>" style="margin-left: 3px;"><i class="fa fa-trash"></i> Delete</button></td>
+                                    <td><?php if($model->image): ?><img style="border-radius: 50%;" src="<?php echo e(asset("public/admin/images/products")); ?>/<?php echo e($model->image); ?>" width="50px" height="50px" alt=""><?php else: ?><img style="border-radius: 50%;" src="<?php echo e(asset("public/default.png")); ?>" width="50px" height="50px" alt=""><?php endif; ?></td><td><?php echo $model->name; ?></td><td><?php echo $model->price; ?></td><td><?php echo Str::limit($model->description, 20); ?></td><td><?php echo e(date("d, M-Y", strtotime($model->date))); ?></td><td><?php if($model->status): ?><span class="label label-success">Active</span><?php else: ?><span class="label label-danger">In-Active</span><?php endif; ?></td><td width="250px"><a href="<?php echo e(route("product.show", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Show Product" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a><a href="<?php echo e(route("product.edit", $model->id)); ?>" data-toggle="tooltip" data-placement="top" title="Edit Product" class="btn btn-primary btn-xs" style="margin-left: 3px;"><i class="fa fa-edit"></i> Edit</a><button data-toggle="tooltip" data-placement="top" title="Delete Product" class="btn btn-danger btn-xs delete" data-slug="<?php echo e($model->id); ?>" data-del-url="<?php echo e(route("product.destroy", $model->id)); ?>" style="margin-left: 3px;"><i class="fa fa-trash"></i> Delete</button></td>
                                 </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="10">
                                     Displying <?php echo e($models->firstItem()); ?> to <?php echo e($models->lastItem()); ?> of <?php echo e($models->total()); ?> records
                                     <div class="d-flex justify-content-center">
                                         <?php echo $models->links('pagination::bootstrap-4'); ?>

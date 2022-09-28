@@ -1,13 +1,13 @@
-<?php
+<?php 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
-use App\Models\Project;
+use App\Models\Product;
 use DB;
 use Str;
 
-class ProjectController extends Controller
+class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,17 +17,17 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $query = Project::orderby('id', 'desc')->where('id', '>', 0);
+            $query = Product::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("date", "like", "%". $request["search"] ."%");$query->orWhere("image", "like", "%". $request["search"] ."%");
+                $query->where("image", "like", "%". $request["search"] ."%");$query->orWhere("name", "like", "%". $request["search"] ."%");$query->orWhere("price", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("date", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
-            return (string) view('projects._search', compact('models'));
+            return (string) view('products._search', compact('models'));
         }
 
-        $page_title = Menu::where('menu', 'project')->first()->label;
-        $models = Project::orderby('id', 'desc')->paginate(10);
-        return view('projects.index', compact('models', 'page_title'));
+        $page_title = Menu::where('menu', 'product')->first()->label;
+        $models = Product::orderby('id', 'desc')->paginate(10);
+        return view('products.index', compact('models', 'page_title'));
     }
 
     /**
@@ -37,8 +37,8 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        $view_all_title = Menu::where('menu', 'project')->first()->label;
-        return view('projects.create', compact('view_all_title'));
+        $view_all_title = Menu::where('menu', 'product')->first()->label;
+        return view('products.create', compact('view_all_title'));
     }
 
     /**
@@ -48,21 +48,16 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, Project::getValidationRules());
+        $this->validate($request, Product::getValidationRules());
         $input = $request->all();
         DB::beginTransaction();
 
         try{
-            if (isset($request->image)) {
-                $image = date("d-m-Y-His").".".$request->file("image")->getClientOriginalExtension();
-                $request->image->move(public_path("/admin/projects"), $image);
-                return $input["image"] = $image;
-            }
-
-	        Project::create($input);
+            if (isset($request->image)) {$image = date("d-m-Y-His").".".$request->file("image")->getClientOriginalExtension();$request->image->move(public_path("/admin/images/products"), $image);$input["image"] = $image;}
+	        Product::create($input);
 
             DB::commit();
-            return redirect()->route('project.index')->with('message', 'Project Added Successfully !');
+            return redirect()->route('product.index')->with('message', 'Product Added Successfully !');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
@@ -77,9 +72,9 @@ class ProjectController extends Controller
      */
     public function show($id)
     {
-        $view_all_title = Menu::where('menu', 'project')->first()->label;
-        $model = Project::findOrFail($id);
-      	return view('projects.show', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'product')->first()->label;
+        $model = Product::findOrFail($id);
+      	return view('products.show', compact('view_all_title', 'model'));
     }
 
     /**
@@ -90,9 +85,9 @@ class ProjectController extends Controller
      */
     public function edit($id)
     {
-        $view_all_title = Menu::where('menu', 'project')->first()->label;
-        $model = Project::findOrFail($id);
-        return view('projects.edit', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'product')->first()->label;
+        $model = Product::findOrFail($id);
+        return view('products.edit', compact('view_all_title', 'model'));
     }
 
     /**
@@ -103,16 +98,16 @@ class ProjectController extends Controller
      */
     public function update($id, Request $request)
     {
-        $model = Project::findOrFail($id);
+        $model = Product::findOrFail($id);
 
-	    $this->validate($request, Project::getValidationRules());
+	    $this->validate($request, Product::getValidationRules());
 
         try{
             $input = [];
             foreach($request->toArray() as $key=>$req){
                 if(gettype($req)=='object'){
                     if (isset($key)) {
-                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Project)));
+                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Product)));
                         $image = date('d-m-Y-His').'.'.$request->file($key)->getClientOriginalExtension();
                         $request->$key->move(public_path('/admin/assets/'.$folder_name), $image);
                         $input[$key] = $image;
@@ -122,7 +117,7 @@ class ProjectController extends Controller
                 }
             }
 	        $model->fill($input)->save();
-            return redirect()->route('project.index')->with('message', 'Project update Successfully !');
+            return redirect()->route('product.index')->with('message', 'Product update Successfully !');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
         }
@@ -136,7 +131,7 @@ class ProjectController extends Controller
      */
     public function destroy($id)
     {
-        $model = Project::findOrFail($id);
+        $model = Product::findOrFail($id);
 	    $model->delete();
 
         if($model){

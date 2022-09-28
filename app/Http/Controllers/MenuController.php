@@ -47,29 +47,14 @@ class MenuController extends Controller
      */
     public function create()
     {
-        // $columns = DB::select('show columns from ' . 'states');
-        // dd($columns);
-        // foreach($columns as $value){
-        //     $type = explode('(', $value->Type);
-        //     // return $type[0];
-        //     // if($column->Type=='text'){
-        //     //     return 'text';
-        //     // }
-        //     // $xp = explode('(', $column->Type);
-        //     if($type[0]=='binary'){ //image binary type
-        //         return $type[0];
-        //         return 'image';
+        // $migration_file = Str::plural(str_replace(' ', '_', strtolower('country')));
+        // $migration_file_name = '_create_'.$migration_file ."_table";
+        // foreach(File::allFiles('database/migrations') as $file){
+        //     if(str_contains($file,$migration_file_name)){
+        //         DB::table('migrations')->where('migration', 'like',  '%' .$migration_file_name)->delete();
+        //         unlink($file);
         //     }
-        //     // if($xp[0]=='varchar'){
-        //     //     return 'varchar';
-        //     // }
-
-        //     // if($xp[0]=='varchar'){
-        //     //     return 'varchar';
-        //     // }
-
         // }
-
 
         $page_title = 'Add New Menu';
         $roles = Role::where('status', 1)->get();
@@ -201,7 +186,8 @@ class MenuController extends Controller
             $migration_file_name = '_create_'.$migration_file ."_table";
             foreach(File::allFiles('database/migrations') as $file){
                 if(str_contains($file,$migration_file_name)){
-                    DB::table('migrations')->where('migration', $file)->delete();
+                    // DB::table('migrations')->where('migration', $file)->delete();
+                    DB::table('migrations')->where('migration', 'like',  '%' .$migration_file_name)->delete();
                     unlink($file);
                 }
             }
@@ -232,6 +218,12 @@ class MenuController extends Controller
 
             //delete table from database
             $table_name = Str::plural(str_replace(' ', '_', strtolower($model->menu)));
+
+            $folder_path = base_path('public/admin/images/'.$table_name);
+            if(file_exists($folder_path)){
+                File::deleteDirectory($folder_path);
+            }
+
             Schema::drop($table_name);
 
             $model->delete();
@@ -334,7 +326,7 @@ class MenuController extends Controller
         if($upload){
             $upload_file  .= 'if (isset($request->'.$upload.')) {'.
                                 '$'.$upload.' = date("d-m-Y-His").".".$request->file("'.$upload.'")->getClientOriginalExtension();'.
-                                '$request->'.$upload.'->move(public_path("/admin/'.$table_name.'"), $'.$upload.');'.
+                                '$request->'.$upload.'->move(public_path("/admin/images/'.$table_name.'"), $'.$upload.');'.
                                 '$input["'.$upload.'"]'.' = $'.$upload.';'.
                             '}';
         }
@@ -422,7 +414,7 @@ class MenuController extends Controller
 
     	$form = '';
     	$edit_form = '';
-    	$show_form = '';
+        $show_form = '<table class="table">';
     	$index_page = "";
     	$show  = "";
         $t_columns = "";
@@ -438,7 +430,6 @@ class MenuController extends Controller
 
                 $form .= '<div class="form-group">' ."\n";
                 $edit_form .= '<div class="form-group">' ."\n";
-                $show_form .= '<div class="form-group">' ."\n";
 
                 $form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
                 if($value->Null=='NO'){
@@ -462,6 +453,10 @@ class MenuController extends Controller
                         }elseif($type[0]=='binary' || $type[0]=='varbinary' || $type[0]=='blob'){
                             $bool = true;
                             $form .= '<input type="file" class="form-control" id="imgInput" name="'.$value->Field.'" accept="image/*">'."\n";
+                            $file_path = public_path('admin/images/'.$table_name);
+                            if(!File::isDirectory($file_path)){
+                                File::makeDirectory($file_path, 0777, true, true);
+                            }
                         }else{
                             $form .= '<input type="'.$type[0].'" class="form-control" name="'.$value->Field.'" value="{{ old("'.$value->Field.'") }}" placeholder="Enter '.$value->Field.'">'."\n";
                         }
@@ -475,23 +470,21 @@ class MenuController extends Controller
                     $form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">PREVIEW</label>' ."\n";
                     $form .= '<div class="col-sm-8">';
                                 $default_image_path = "'public/default.png'";
-                                    $form .= '<img src="{{ asset('.$default_image_path.') }}" id="preview"  width="100px" alt="">';
-                                    $form .= '</div>';
+                                $form .= '<img src="{{ asset('.$default_image_path.') }}" id="preview"  width="100px" alt="">';
+                                $form .= '</div>';
                     $form .= '</div>';
                 }
 
                 $edit_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
-                $show_form .= '<label for="'.$value->Field.'" class="col-sm-2 control-label">'.ucfirst($value->Field);
                 if($value->Null=='NO'){
-                    $edit_form .= ' <span style="color:red">*</span>';
+                    $edit_form .= '<span style="color:red">*</span>';
                 }
 
                 $edit_form .= '</label>' ."\n";
-                $show_form .= '</label>' ."\n";
 
                 $edit_form .='<div class="col-sm-8">';
                         if($type[0]=='text'){
-                            $edit_form .= '<textarea class="form-control" id="'.$value->Field.'" name="'.$value->Field.'">{{ $model->'.$value->Field.' }}</textarea>'."\n";
+                            $edit_form .= '<textarea class="ckeditor form-control" id="'.$value->Field.'" name="'.$value->Field.'">{{ $model->'.$value->Field.' }}</textarea>'."\n";
                         }elseif($type[0]=='tinyint'){
                             $edit_form .= '<select class="form-control" name="status">'.
                                         '<option value="1" {{ $model->'.$value->Field.'==1?"selected":"" }}>Active</option>'.
@@ -499,6 +492,9 @@ class MenuController extends Controller
                                     '</select>';
                         }elseif($type[0]=='varchar'){
                             $edit_form .= '<input type="text" class="form-control" name="'.$value->Field.'" value="{{ $model->'.$value->Field.' }}" placeholder="Enter '.$value->Field.'">'."\n";
+                        }elseif($type[0]=='binary' || $type[0]=='varbinary' || $type[0]=='blob'){
+                            $bool = true;
+                            $edit_form .= '<input type="file" class="form-control" id="imgInput" name="'.$value->Field.'" accept="image/*">'."\n";
                         }elseif($type[0]=='int' || $type[0]=='bigint' || $type[0]=='decimal' || $type[0]=='float' || $type[0]=='double'){
                             $edit_form .= '<input type="number" class="form-control" name="'.$value->Field.'" value="{{ $model->'.$value->Field.' }}" placeholder="Enter '.$value->Field.'">'."\n";
                         }else{
@@ -509,15 +505,23 @@ class MenuController extends Controller
                     '</div>'.
                 '</div>';
 
-                $show_form .='<div class="col-sm-8">'.
-                                '@if($model->status)'.
-                                    '<span class="label label-success">Active</span>'.
-                                '@else'.
-                                    '<span class="label label-danger">In-Active</span>'.
-                                '@endif'.
-                                '<div>{{ $model->'.$value->Field.' }}</div>'.
-                            '</div>'.
-                        '</div>';
+                if($bool){
+                    $edit_form .= '@if($model->'.$value->Field.')'.
+                                        '<div class="form-group">'.
+                                            '<label for="'.$value->Field.'" class="col-sm-2 control-label">Exit '.ucfirst($value->Field).' </label>'.
+                                            '<div class="col-sm-8">'.
+                                                '<img src="{{ asset("public/admin/images/'.$table_name.'") }}/{{ $model->'.$value->Field.' }}" id="preview"  width="100px" alt="">'.
+                                            '</div>'.
+                                        '</div>'.
+                                    '@else'.
+                                        '<div class="form-group">'.
+                                            '<label for="'.$value->Field.'" class="col-sm-2 control-label">Preview </label>'.
+                                            '<div class="col-sm-8">'.
+                                                '<img src="{{ asset("public/default.png") }}" id="preview"  width="100px" alt="">'.
+                                            '</div>'.
+                                        '</div>'.
+                                    '@endif';
+                }
 
                 if($value->Field=='status'){
                     $index_page .= '<td>'.
@@ -527,13 +531,46 @@ class MenuController extends Controller
                                             '<span class="label label-danger">In-Active</span>'.
                                         '@endif'.
                                     '</td>';
+
+                    $show_form .= '<tr>'.
+                                    '<th>'.ucfirst($value->Field).'</th>'.
+                                    '<td>'.
+                                        '@if($model->status)'.
+                                            '<span class="label label-success">Active</span>'.
+                                        '@else'.
+                                            '<span class="label label-danger">In-Active</span>'.
+                                        '@endif'.
+                                    '</td>'.
+                                '</tr>';
                 }elseif($type[0]=='date'){
                     $index_page .= '<td>{{ date("d, M-Y", strtotime($model->'.$value->Field.')) }}</td>';
+                    $show_form .= '<tr><th>'.ucfirst($value->Field).'</th><td>{{ date("d, M-Y", strtotime($model->'.$value->Field.')) }}</td></tr>';
+                }elseif($type[0]=='binary' || $type[0]=='varbinary' || $type[0]=='blob'){
+                    $index_page .= '<td>'.
+                                        '@if($model->'.$value->Field.')'.
+                                            '<img style="border-radius: 50%;" src="{{ asset("public/admin/images/'.$table_name.'") }}/{{ $model->'.$value->Field.' }}" width="50px" height="50px" alt="">'.
+                                        '@else'.
+                                            '<img style="border-radius: 50%;" src="{{ asset("public/default.png") }}" width="50px" height="50px" alt="">'.
+                                        '@endif'.
+                                    '</td>';
+
+                    $show_form .= '<tr><th>'.ucfirst($value->Field).'</th><td>'.
+                                        '@if($model->'.$value->Field.')'.
+                                            '<img style="border-radius: 50%;" src="{{ asset("public/admin/images/'.$table_name.'") }}/{{ $model->'.$value->Field.' }}" width="50px" height="50px" alt="">'.
+                                        '@else'.
+                                            '<img style="border-radius: 50%;" src="{{ asset("public/default.png") }}" width="50px" height="50px" alt="">'.
+                                        '@endif'.
+                                    '</td></tr>';
+                }elseif($type[0]=='text'){
+                    $index_page .= '<td>{!! Str::limit($model->'.$value->Field.', 20) !!}</td>';
                 }else{
-                    $index_page .= '<td>{{ $model->'.$value->Field.' }}</td>';
+                    $index_page .= '<td>{!! $model->'.$value->Field.' !!}</td>';
+                    $show_form .= '<tr><th width="250px">'.ucfirst($value->Field).'</th><td>{!! $model->'.$value->Field.' !!}</td></tr>';
                 }
             }
 		}
+
+        $show_form .= '</table>';
 
         $index_page .= '<td width="250px">'.
                     '<a href="{{ route("'.$route_menu.'.show", $model->id) }}" data-toggle="tooltip" data-placement="top" title="Show '.Str::ucfirst($modelName).'" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Show</a>'.

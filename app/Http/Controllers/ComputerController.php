@@ -3,11 +3,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
-use App\Models\Country;
+use App\Models\Computer;
 use DB;
 use Str;
 
-class CountryController extends Controller
+class ComputerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,17 +17,17 @@ class CountryController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $query = Country::orderby('id', 'desc')->where('id', '>', 0);
+            $query = Computer::orderby('id', 'desc')->where('id', '>', 0);
             if($request['search'] != ""){
-                $query->where("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");$query->orWhere("image", "like", "%". $request["search"] ."%");
+                $query->where("image", "like", "%". $request["search"] ."%");$query->orWhere("name", "like", "%". $request["search"] ."%");$query->orWhere("description", "like", "%". $request["search"] ."%");
             }
             $models = $query->paginate(10);
-            return (string) view('countries._search', compact('models'));
+            return (string) view('computers._search', compact('models'));
         }
 
-        $page_title = Menu::where('menu', 'country')->first()->label;
-        $models = Country::orderby('id', 'desc')->paginate(10);
-        return view('countries.index', compact('models', 'page_title'));
+        $page_title = Menu::where('menu', 'computer')->first()->label;
+        $models = Computer::orderby('id', 'desc')->paginate(10);
+        return view('computers.index', compact('models', 'page_title'));
     }
 
     /**
@@ -37,8 +37,8 @@ class CountryController extends Controller
      */
     public function create()
     {
-        $view_all_title = Menu::where('menu', 'country')->first()->label;
-        return view('countries.create', compact('view_all_title'));
+        $view_all_title = Menu::where('menu', 'computer')->first()->label;
+        return view('computers.create', compact('view_all_title'));
     }
 
     /**
@@ -48,29 +48,16 @@ class CountryController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, Country::getValidationRules());
-
+        $this->validate($request, Computer::getValidationRules());
+        $input = $request->all();
         DB::beginTransaction();
 
         try{
-            $input = [];
-            foreach($request->toArray() as $key=>$req){
-                if(gettype($req)=='object'){
-                    if (isset($key)) {
-                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Country)));
-                        $image = date('d-m-Y-His').'.'.$request->file($key)->getClientOriginalExtension();
-
-                        $request->$key->move(public_path('/admin/assets/'.$folder_name), $image);
-                        $input[$key] = $image;
-                    }
-                }else{
-                    $input[$key] = $req;
-                }
-            }
-	        Country::create($input);
+            if (isset($request->image)) {$image = date("d-m-Y-His").".".$request->file("image")->getClientOriginalExtension();$request->image->move(public_path("/admin/images/computers"), $image);$input["image"] = $image;}
+	        Computer::create($input);
 
             DB::commit();
-            return redirect()->route('country.index')->with('message', 'Country Added Successfully !');
+            return redirect()->route('computer.index')->with('message', 'Computer Added Successfully !');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
@@ -85,9 +72,9 @@ class CountryController extends Controller
      */
     public function show($id)
     {
-        $view_all_title = Menu::where('menu', 'country')->first()->label;
-        $model = Country::findOrFail($id);
-      	return view('countries.show', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'computer')->first()->label;
+        $model = Computer::findOrFail($id);
+      	return view('computers.show', compact('view_all_title', 'model'));
     }
 
     /**
@@ -98,9 +85,9 @@ class CountryController extends Controller
      */
     public function edit($id)
     {
-        $view_all_title = Menu::where('menu', 'country')->first()->label;
-        $model = Country::findOrFail($id);
-        return view('countries.edit', compact('view_all_title', 'model'));
+        $view_all_title = Menu::where('menu', 'computer')->first()->label;
+        $model = Computer::findOrFail($id);
+        return view('computers.edit', compact('view_all_title', 'model'));
     }
 
     /**
@@ -111,16 +98,16 @@ class CountryController extends Controller
      */
     public function update($id, Request $request)
     {
-        $model = Country::findOrFail($id);
+        $model = Computer::findOrFail($id);
 
-	    $this->validate($request, Country::getValidationRules());
+	    $this->validate($request, Computer::getValidationRules());
 
         try{
             $input = [];
             foreach($request->toArray() as $key=>$req){
                 if(gettype($req)=='object'){
                     if (isset($key)) {
-                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Country)));
+                        $folder_name = Str::plural(str_replace(' ', '_', strtolower(Computer)));
                         $image = date('d-m-Y-His').'.'.$request->file($key)->getClientOriginalExtension();
                         $request->$key->move(public_path('/admin/assets/'.$folder_name), $image);
                         $input[$key] = $image;
@@ -130,7 +117,7 @@ class CountryController extends Controller
                 }
             }
 	        $model->fill($input)->save();
-            return redirect()->route('country.index')->with('message', 'Country update Successfully !');
+            return redirect()->route('computer.index')->with('message', 'Computer update Successfully !');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error. '.$e->getMessage());
         }
@@ -144,7 +131,7 @@ class CountryController extends Controller
      */
     public function destroy($id)
     {
-        $model = Country::findOrFail($id);
+        $model = Computer::findOrFail($id);
 	    $model->delete();
 
         if($model){

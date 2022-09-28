@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', 'Add New State'); ?>
+<?php $__env->startSection('title', 'Add New Country'); ?>
 <?php $__env->startPush('css'); ?>
     <style>
         select {
@@ -9,16 +9,16 @@
 <?php $__env->startSection('content'); ?>
 <section class="content-header">
 	<div class="content-header-left">
-		<h1>Add New State</h1>
+		<h1>Add New Country</h1>
 	</div>
 	<div class="content-header-right">
-		<a href="<?php echo e(route("state.index")); ?>" data-toggle="tooltip" data-placement="left" title="<?php echo e($view_all_title); ?>" class="btn btn-primary btn-sm"><?php echo e($view_all_title); ?></a>
+		<a href="<?php echo e(route("country.index")); ?>" data-toggle="tooltip" data-placement="left" title="<?php echo e($view_all_title); ?>" class="btn btn-primary btn-sm"><?php echo e($view_all_title); ?></a>
 	</div>
 </section>
 <section class="content">
 	<div class="row">
 		<div class="col-md-12">
-			<form action="<?php echo e(route("state.store")); ?>" id="regform" class="form-horizontal" enctype="multipart/form-data" method="post" accept-charset="utf-8">
+			<form action="<?php echo e(route("country.store")); ?>" id="regform" class="form-horizontal" enctype="multipart/form-data" method="post" accept-charset="utf-8">
 				<?php echo csrf_field(); ?>
 				<div class="box box-info">
 					<div class="box-body">
@@ -51,4 +51,4 @@
 <?php $__env->startPush('js'); ?>
 <?php $__env->stopPush(); ?>
 
-<?php echo $__env->make('layouts.admin.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\mauth_crud\resources\views/states/create.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.admin.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\mauth_crud\resources\views/countries/create.blade.php ENDPATH**/ ?>

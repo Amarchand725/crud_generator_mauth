@@ -3,16 +3,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Project extends Model
+class Computer extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'projects';
+    protected $table = 'computers';
     protected $guarded = [];
 
     static function getValidationRules(){
     	$rules = [
-		    'name' => 'required','description' => 'required','date' => 'required','image' => 'required'
+		    'image' => 'required','name' => 'required','description' => 'required'
 		];
 		return $rules;
     }

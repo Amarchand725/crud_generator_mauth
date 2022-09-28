@@ -23,26 +23,23 @@
 				<div class="box box-info">
 					<div class="box-body">
                         <div class="form-group">
+<label for="image" class="col-sm-2 control-label">Image <span style="color:red">*</span></label>
+<div class="col-sm-8"><input type="file" class="form-control" id="imgInput" name="image" accept="image/*">
+<span style="color: red"><?php echo e($errors->first("image")); ?></span></div></div><div class="form-group">
+<label for="image" class="col-sm-2 control-label">PREVIEW</label>
+<div class="col-sm-8"><img src="<?php echo e(asset('public/default.png')); ?>" id="preview"  width="100px" alt=""></div></div><div class="form-group">
 <label for="name" class="col-sm-2 control-label">Name <span style="color:red">*</span></label>
 <div class="col-sm-8"><input type="text" class="form-control" name="name" value="<?php echo e(old("name")); ?>" placeholder="Enter name">
 <span style="color: red"><?php echo e($errors->first("name")); ?></span></div></div><div class="form-group">
+<label for="price" class="col-sm-2 control-label">Price <span style="color:red">*</span></label>
+<div class="col-sm-8"><input type="number" class="form-control" name="price" value="<?php echo e(old("price")); ?>" placeholder="Enter price">
+<span style="color: red"><?php echo e($errors->first("price")); ?></span></div></div><div class="form-group">
 <label for="description" class="col-sm-2 control-label">Description <span style="color:red">*</span></label>
 <div class="col-sm-8"><textarea class="form-control ckeditor" id="description" name="description" placeholder="Enter description"><?php echo e(old("description")); ?></textarea>
 <span style="color: red"><?php echo e($errors->first("description")); ?></span></div></div><div class="form-group">
-<label for="image" class="col-sm-2 control-label">Image <span style="color:red">*</span></label>
-<div class="col-sm-8"><input type="file" class="form-control" id="imgInput" name="image" accept="image/*">
-<span style="color: red"><?php echo e($errors->first("image")); ?></span></div><label for="image" class="col-sm-2 control-label">PREVIEW</label>
-<div class="col-sm-8"></div><img src="<?php echo e(asset(public/default.png)); ?>" id="preview"  width="100px" alt=""><div class="form-group">
-<label for="name" class="col-sm-2 control-label">Name <span style="color:red">*</span></label>
-<div class="col-sm-8"><input type="text" class="form-control" name="name" value="<?php echo e(old("name")); ?>" placeholder="Enter name">
-<span style="color: red"><?php echo e($errors->first("name")); ?></span></div></div><div class="form-group">
-<label for="description" class="col-sm-2 control-label">Description <span style="color:red">*</span></label>
-<div class="col-sm-8"><textarea class="form-control ckeditor" id="description" name="description" placeholder="Enter description"><?php echo e(old("description")); ?></textarea>
-<span style="color: red"><?php echo e($errors->first("description")); ?></span></div></div><div class="form-group">
-<label for="image" class="col-sm-2 control-label">Image <span style="color:red">*</span></label>
-<div class="col-sm-8"><input type="file" class="form-control" id="imgInput" name="image" accept="image/*">
-<span style="color: red"><?php echo e($errors->first("image")); ?></span></div><label for="image" class="col-sm-2 control-label">PREVIEW</label>
-<div class="col-sm-8"></div></div><div class="form-group">
+<label for="date" class="col-sm-2 control-label">Date <span style="color:red">*</span></label>
+<div class="col-sm-8"><input type="date" class="form-control" name="date" value="<?php echo e(old("date")); ?>" placeholder="Enter date">
+<span style="color: red"><?php echo e($errors->first("date")); ?></span></div></div><div class="form-group">
 <label for="status" class="col-sm-2 control-label">Status <span style="color:red">*</span></label>
 <div class="col-sm-8"><select class="form-control" name="status"><option value="1" <?php echo e(old("status")==1?"selected":""); ?>>Active</option><option value="0" <?php echo e(old("status")==0?"selected":""); ?>>In Active</option></select><span style="color: red"><?php echo e($errors->first("status")); ?></span></div></div><label for="" class="col-sm-2 control-label"></label>
 <div class="col-sm-6"><button type="submit" class="btn btn-success pull-left">Save</button></div>
